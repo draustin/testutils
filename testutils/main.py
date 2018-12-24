@@ -1,5 +1,5 @@
+"""Previously this file was called testutils.py, but having the same name as the package seemed to confuse dill."""
 import difflib
-import getopt
 import os
 import subprocess
 import sys
@@ -14,9 +14,9 @@ def compare_other_process_repr(obj):
         with open(pkl_path, 'wb') as file:
             dill.dump(obj, file)
 
-        # Have to use shell=True to guarantee we get the right Python environment (e.g. conda). With shell=True,
-        # need to use a string rather than sequence of arguments.
-        subprocess.run('_run_load_and_save_repr -r '+pkl_path, shell=True)
+        # Run a script which loads the pickled object and saves its string representation.
+        args = sys.executable, os.path.join(os.path.dirname(__file__), '_run_load_and_save_repr.py'), '-r', pkl_path
+        subprocess.run(args, shell=False)
 
         txt_path = get_txt_path(pkl_path)
         with open(txt_path, 'r') as file:
@@ -43,15 +43,5 @@ def load_and_save_repr(pkl_path):
         file.write(repr(obj))
 
 
-def _run_load_and_save_repr():
-    # For command line use.
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'r:')
-    except getopt.GetoptError as err:
-        print(err)
-        sys.exit(2)
-    for o, a in opts:
-        if o == '-r':
-            print('loading and saving', a)
-            load_and_save_repr(a)
-    sys.exit(0)
+class _TestClass:
+    pass
