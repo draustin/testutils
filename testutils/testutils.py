@@ -13,10 +13,11 @@ def compare_other_process_repr(obj):
         pkl_path = os.path.join(dir, 'obj.pkl')
         with open(pkl_path, 'wb') as file:
             dill.dump(obj, file)
-        # result=os.system('python -m testutils -r '+pkl_path)
-        # print('os.system returned',result)
-        #subprocess.run(['python', '-m', 'testutils', '-r', pkl_path])
-        subprocess.run(['_run_load_and_save_repr', '-r', pkl_path])
+
+        # Have to use shell=True to guarantee we get the right Python environment (e.g. conda). With shell=True,
+        # need to use a string rather than sequence of arguments.
+        subprocess.run('_run_load_and_save_repr -r '+pkl_path, shell=True)
+
         txt_path = get_txt_path(pkl_path)
         with open(txt_path, 'r') as file:
             other_repr_lines = file.readlines()
@@ -51,5 +52,6 @@ def _run_load_and_save_repr():
         sys.exit(2)
     for o, a in opts:
         if o == '-r':
+            print('loading and saving', a)
             load_and_save_repr(a)
     sys.exit(0)
